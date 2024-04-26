@@ -1,0 +1,177 @@
+﻿@model webCore.Models.Login.LoginModel
+@{
+    Layout = String.Empty;
+}
+
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Go</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container {
+            display: flex;
+            margin-top: 5%;
+        }
+
+        .left, .right {
+            padding: 20px;
+            width: 50%;
+            border: 1px solid #ccc;
+        }
+
+        .right {
+            border: 1px solid #ccc;
+        }
+
+        .login {
+            margin-top: 100px;
+        }
+
+        .top {
+            margin-top: 50px;
+        }
+
+        .btn-primary {
+            margin-top: 10px;
+        }
+
+        .top1 {
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6 d-flex align-items-stretch">
+                <img src="~/images/travel_login.jpg" class="img-fluid" alt="Image">
+            </div>
+            <div class="col-md-5">
+                <div class="text-center">
+                    <h1 class="display-4">Login</h1>
+                    <p class="text-black-50 mb-5">Please enter your email and password!</p>
+
+                    <form asp-action="Login">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group mb-5">
+
+                            <input asp-for="Email" class="form-control" placeholder="Email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-5">
+
+                            <input asp-for="Password" class="form-control" type="password" placeholder="Password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-group ">
+                            <input type="submit" value="Login" class="btn btn-primary" style=" width: 100%;" />
+                        </div>
+                        <p class="small mb-5 pb-lg-2"><a class="text-muted" asp-action="ForgotPassword">Forgot password?</a></p>
+                        <p>Don't have an account? <a asp-action="Register" class="link-info">Register here</a></p>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left">
+            <h1>Ease Roam</h1>
+
+            <img src="image/" alt="Admin illustration" class="img-fluid">
+        </div>
+        <div class="right">
+            <h1 class="top1">Login</h1>
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Email"></label>
+                    <input asp-for="Email" class="form-control" id="email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Password"></label>
+                    <input asp-for="Password" class="form-control" id="password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label asp-for="RememberMe">
+                            <input asp-for="RememberMe" /> @Html.DisplayNameFor(m => m.RememberMe)
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <p class="top"><a asp-controller="Home" asp-action="GotoForgetPassword">Forgot Password? </a></p>
+            
+        </div>
+    </div>
+    <!-- Add Bootstrap JS and Popper JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCuZB5q-EkLEIH3AA1mbAvAfFd7igBO_cs",
+            authDomain: "fir-project-7ba4f.firebaseapp.com",
+            databaseURL: "https://fir-project-7ba4f-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "fir-project-7ba4f",
+            storageBucket: "fir-project-7ba4f.appspot.com",
+            messagingSenderId: "223518970706",
+            appId: "1:223518970706:web:82bb02bb9bdb537d38208b",
+            measurementId: "G-DBMG47PE0Z"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    userCredential.user.getIdToken().then(function (idToken) {
+                        postData('/Firestore/VerifyToken', { idToken: idToken })
+                            .then(data => {
+                                console.log(data);
+                                if (data.success) {
+                                    window.location.href = data.redirectUrl;
+                                } else {
+                                    alert(data.message);
+                                }
+                            });
+                    });
+                })
+                .catch((error) => {
+                    alert(error.message);
+                });
+        }
+        async function postData(url = '', data = {}) {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return response.json();
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.querySelector("form");
+            form.onsubmit = function (e) {
+                e.preventDefault();
+                login();
+            };
+        });
+    </script>
+    
+</body>
+</html>

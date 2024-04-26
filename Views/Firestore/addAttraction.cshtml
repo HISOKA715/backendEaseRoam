@@ -1,0 +1,315 @@
+﻿@model webCore.Models.TourismAttraction.TourismAttractionViewModel
+@{
+    ViewData["Title"] = "Add Attraction";
+}
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Style inputs */
+    input[type=text], select, textarea, input[type=number] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        margin-top: 6px;
+        margin-bottom: 16px;
+        resize: vertical;
+    }
+
+
+    input[type=submit] {
+        background-color: #04AA6D;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        cursor: pointer;
+    }
+
+        input[type=submit]:hover {
+            background-color: #45a049;
+        }
+
+    /* Style the container/contact section */
+    .container {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding: 10px;
+    }
+
+    /* Create two columns that float next to eachother */
+    .column {
+        float: left;
+        width: 50%;
+        margin-top: 6px;
+        padding: 20px;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: flex-end; /* Align items to the right */
+        gap: 10px; /* Optional: adds some space between the buttons */
+    }
+
+    .image-container {
+        position: relative;
+        width: 400px;
+        height: 400px;
+        cursor: pointer;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+        transition: .5s ease;
+        background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    }
+
+    .image-container:hover .overlay {
+        opacity: 1;
+    }
+
+    .add-icon {
+        color: white;
+        font-size: 50px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .hide_image{
+    display:none;}
+
+    .pac-container {
+        z-index: 10000; 
+        position: absolute;
+    }
+
+    /* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
+
+</style>
+<form asp-controller="Firestore" asp-action="AddRecordAttraction" method="post" enctype="multipart/form-data">
+
+    <div class="container">
+        <div style="text-align:center">
+            <input asp-for="address" type="text" id="address" placeholder="Attraction adress..." >
+            <span asp-validation-for="address" class="text-danger"></span><br />
+        </div>
+
+        <div class="row">
+            <div class="column">
+
+                <div class="image-container" id="imageContainer">
+                    <img src="" alt="Tourism Attraction" id="hoverImage" class="hide_image" style="width:100%; height:100%;">
+                    <div class="overlay">
+                        <i class="add-icon fas fa-plus" id="addIcon" style="display:block;"></i>
+                    </div>
+                </div>
+                <input type="file" id="imageInput" name="imageFile" style="display:none;" onchange="fileSelected(event)">
+              
+
+
+                <input type="hidden" asp-for="ImageUrl" id="imageurl" />
+
+                <label for="Latitude">Latitude</label>
+                <input asp-for="Latitude" type="number" id="latitude" placeholder="point latitude" min="-90" max="90" />
+                <span asp-validation-for="Latitude" class="text-danger"></span><br />
+
+                <label for="longitude">longitude</label>
+                <input asp-for="Longitude" type="number" id="longitude" placeholder="point longitude" min="-180" max="180" />
+                <span asp-validation-for="Longitude" class="text-danger"></span><br />
+
+                <label for="clickRate">Click Rate</label>
+                <input asp-for="ClickRate" type="number" id="clickrate" placeholder="click rate" />
+                <span asp-validation-for="ClickRate" class="text-danger"></span><br />
+
+            </div>
+            <div class="column">
+
+                <label for="name">Name</label>
+                <input asp-for="Name" type="text" id="name" placeholder="Tourism Attraction name.." />
+                <span asp-validation-for="Name" class="text-danger"></span><br />
+
+                <label for="desc">Description</label>
+                <textarea asp-for="aDescription" id="desc" placeholder="Tourism Attraction description... " style="height:180px;"></textarea>
+                <span asp-validation-for="aDescription" class="text-danger"></span><br />
+
+                <label for="category">Category</label>
+                <select asp-for="Category" asp-items="Model.CategoryOptions"></select>
+                <span asp-validation-for="Category" class="text-danger"></span><br />
+
+                <label for="State">State</label>
+                <select asp-for="State" asp-items="Model.StateOptions"></select>
+                <span asp-validation-for="State" class="text-danger"></span><br />
+
+
+                <label for="FoundDate">Found Date</label>
+                <input asp-for="stringFullDate" type="text" id="FoundDate" readonly />
+                <span asp-validation-for="stringFullDate" class="text-danger"></span><br />
+                <div class="button-container">
+                    <br />
+                    <button type="submit" class="btn btn-success" value="Submit">Add now</button>
+                    <a asp-area=""
+                       role="button"
+                       asp-controller="Firestore"
+                       asp-action="goback1" class="btn btn-secondary"> Cancel</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDtnS0r7CFOE3KAK8Sz07ddFeNumRgP1tw&libraries=places&callback=initAutocomplete" async defer></script>
+
+
+<script>
+      document.addEventListener('DOMContentLoaded', function () {
+    // Get the current date and time
+    var now = new Date();
+
+    // Format the date as 'yyyy-mm-dd'
+    var year = now.getFullYear();
+    var month = ('0' + (now.getMonth() + 1)).slice(-2); // Add leading 0 and get month from 0-11
+    var day = ('0' + now.getDate()).slice(-2);
+
+    // Format the time as 'hh:mm AM/PM'
+    var hours = now.getHours();
+    var minutes = ('0' + now.getMinutes()).slice(-2);
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    var formattedTime = ('0' + hours).slice(-2) + ':' + minutes + ' ' + ampm;
+
+    // Combine date and time
+    var formattedDateTime = year + '-' + month + '-' + day + ' ' + formattedTime;
+
+    // Set the value of the FoundDate input field
+    document.getElementById('FoundDate').value = formattedDateTime;
+        document.getElementById('clickrate').value = 0;
+});
+
+    function initAutocomplete() {
+        var addressInput = document.getElementById('address');
+        var autocomplete = new google.maps.places.Autocomplete(addressInput, {
+            componentRestrictions: { country: "MY" }
+        });
+        autocomplete.setFields(['address_components', 'geometry', 'photos', 'icon', 'name']);
+
+        autocomplete.addListener('place_changed', function () {
+            var place = autocomplete.getPlace();
+            if (!place.geometry) {
+                console.log("Returned place contains no geometry");
+                return;
+            }
+
+            // Set latitude and longitude
+            document.getElementById('latitude').value = place.geometry.location.lat();
+            document.getElementById('longitude').value = place.geometry.location.lng();
+
+            // Fill in the place name
+            document.getElementById('name').value = place.name; // Assuming 'name' is the id of your name input field
+
+            // Attempt to automatically select a state
+            var state = place.address_components.find(component => component.types.includes('administrative_area_level_1'));
+            if (state) {
+                var stateName = state.long_name === "Wilayah Persekutuan Kuala Lumpur" ? "Kuala Lumpur" : state.long_name;
+                $('#State').val(stateName).trigger('change');
+            }
+
+            // Attempt to categorize the attraction
+            var category = 'Unknown';
+            if (place.name.toLowerCase().includes('museum')) {
+                category = 'Tourism Attraction';
+            } else if (place.types && place.types.includes('restaurant')) {
+                category = 'Restaurant';
+            } else if (place.types && place.types.includes('shopping_mall')) {
+                category = 'Shopping';
+            }
+            $('#Category').val(category);
+
+            // Displaying an image
+            if (place.photos && place.photos.length > 0) {
+                var photoUrl = place.photos[0].getUrl({ maxWidth: 1080 });
+                displayImage(photoUrl);
+            } else if (place.icon) {
+                displayImage(place.icon);
+            } else {
+                console.log("No image available for this place");
+            }
+        });
+    }
+
+    function displayImage(url) {
+        var hoverImage = document.getElementById('hoverImage');
+        hoverImage.src = url;
+        hoverImage.classList.remove('hide_image');
+        document.getElementById('addIcon').style.display = 'none';
+
+        // Set the image URL in the hidden input field
+        document.getElementById('imageurl').value = url;
+    }
+
+    function showFileInput() {
+        // Check if there is an image already displayed
+        var hoverImage = document.querySelector('#hoverImage');
+        if (hoverImage.classList.contains('hide_image')) {
+            // No image displayed, show file input
+            document.querySelector('#imageInput').click();
+        } else {
+            // Image is displayed, reset it
+            resetImage();
+        }
+    }
+
+    function fileSelected(event) {
+        if (event.target.files && event.target.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                // Display the selected image
+                var hoverImage = document.querySelector('#hoverImage');
+                hoverImage.src = e.target.result;
+                hoverImage.classList.remove('hide_image');
+                document.querySelector('#addIcon').style.display = 'none';
+            };
+
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    }
+
+    function resetImage() {
+        // Clear the image src and show the add icon
+        var hoverImage = document.querySelector('#hoverImage');
+        hoverImage.src = '';
+        hoverImage.classList.add('hide_image');
+        document.querySelector('#addIcon').style.display = 'block';
+
+        // Optionally, reset the file input
+        document.querySelector('#imageInput').value = '';
+    }
+
+    document.querySelector('.overlay').addEventListener('click', showFileInput);
+</script>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

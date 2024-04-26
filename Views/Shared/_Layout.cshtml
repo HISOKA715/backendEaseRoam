@@ -1,0 +1,58 @@
+﻿@inject IHttpContextAccessor HttpContextAccessor
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - webCore</title>
+    <script src="https://kit.fontawesome.com/4597a49bf5.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/webCore.styles.css" asp-append-version="true" />
+</head>
+<body>
+
+    <div class="margin-top"><button id="sidebarToggle" class="btn"><i class="fas fa-bars"></i></button></div>
+    <div class="sidebar">
+        <!-- Sidebar content -->
+        <div class="nav2">
+            <ul class="nav">
+                <a asp-controller="Firestore" asp-action="GetAccuracy"><li>Trip Analysis</li></a>
+                <a asp-area="" asp-controller="Firestore" asp-action="ListNotification"><li>Notification Management</li></a>
+                <a asp-area="" asp-controller="Firestore" asp-action="ListFeedback"><li>Feedback Management</li></a>
+                <a asp-controller="Firestore" asp-action="ListAttractions"><li>Tourism Attraction Management</li></a>
+                <a asp-controller="Firestore" asp-action="UserChat"><li>Customer Service Chat</li></a>
+                <a asp-controller="Firestore" asp-action="Reports"><li>Post Moderation Management</li></a>
+                <a asp-controller="Firestore" asp-action="ChangeUserRole"><li>User Role</li></a>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Main content header -->
+        <header class="boarder">
+            <div class="margin-left"><h1>@ViewData["Title"]</h1></div>
+            <div class="user-info">
+                @HttpContextAccessor.HttpContext.Session.GetString("username") <span>@HttpContextAccessor.HttpContext.Session.GetString("category")</span>
+                <div class="dropdown-menu">
+                    <a asp-area="" asp-controller="Firestore" asp-action="GotoPassword">Change Password</a>
+                    <a asp-area="" asp-controller="Firestore" asp-action="GetaUser">Edit Account</a>
+                    <a asp-controller="Firestore" asp-action="Logout">Log Out</a>
+                </div>
+            </div>
+        </header>
+        @RenderBody()
+    </div>
+    @RenderSection("Scripts", required: false)
+
+    <script>
+        // JavaScript for toggling the sidebar
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            document.body.classList.toggle('sidebar-hidden');
+        });
+
+    </script>
+
+</body>
+</html>
+

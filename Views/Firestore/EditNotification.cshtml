@@ -1,0 +1,216 @@
+﻿@model webCore.Models.Notification.NotificationModel
+
+@{
+    ViewData["Title"] = "Send Notification";
+}
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    .container {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding: 10px;
+    }
+
+    /* Create two columns that float next to eachother */
+    .column {
+        float: left;
+        width: 50%;
+        margin-top: 6px;
+        padding: 20px;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: flex-end; /* Align items to the right */
+        gap: 10px; /* Optional: adds some space between the buttons */
+    }
+
+    .image-container {
+        position: relative;
+        width: 400px;
+        height: 400px;
+        cursor: pointer;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+        transition: .5s ease;
+        background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    }
+
+    .image-container:hover .overlay {
+        opacity: 1;
+    }
+
+    .add-icon {
+        color: white;
+        font-size: 50px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .hide_image {
+        display: none;
+    }
+
+    .pac-container {
+        z-index: 10000;
+        position: absolute;
+    }
+    /* Style inputs */
+    input[type=text], select, textarea, input[type=number] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        margin-top: 6px;
+        margin-bottom: 16px;
+        resize: vertical;
+    }
+
+
+    input[type=submit] {
+        background-color: #04AA6D;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        cursor: pointer;
+    }
+
+        input[type=submit]:hover {
+            background-color: #45a049;
+        }
+        .top{
+            margin-top:30px;
+        }
+</style>
+
+
+<form asp-action="EditNotification" asp-controller="Firestore" method="post" enctype="multipart/form-data">
+    <div class="container">
+        <div class="row"> 
+            <div class="column">
+
+                <div class="image-container" id="imageContainer">
+                    <img src="@Model.ImageURL" alt="hello" id="hoverImage" style="width:100%; height:100%;">
+                    <div class="overlay">
+                        <i class="add-icon fas fa-plus" id="addIcon" style="display:block;"></i>
+                    </div>
+                </div>
+                <input type="file" id="imageInput" name="imageFile" style="display:none;" onchange="fileSelected(event)">
+                <input type="hidden" asp-for="ImageURL" id="ImageUrl" />
+                <input type="hidden" asp-for="Id" id="ImageUrl" />
+
+            </div>
+            <div class="column">
+                <div class="form-group">
+                    <label asp-for="Title">Title:</label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="body">Body:</label>
+                    <input asp-for="body" class="form-control" />
+                    <span asp-validation-for="body" class="text-danger"></span>
+                </div>
+
+               
+                 <div class="form-group">
+                    <label asp-for="date">Created by:</label>
+                    <input asp-for="date" class="form-control" randonly />
+                </div>
+                <div class="form-group">
+                    <label asp-for="RepostDate">Posted by:</label>
+                    <input asp-for="RepostDate" class="form-control" randonly />
+                </div>
+                <div class="top"></div>
+
+                <button type="submit" class="btn btn-primary">Edit Notification</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function displayImage(url) {
+            var hoverImage = document.getElementById('hoverImage');
+            hoverImage.src = url;
+            hoverImage.classList.remove('hide_image');
+            document.getElementById('addIcon').style.display = 'none';
+
+            // Set the image URL in the hidden input field
+            document.getElementById('ImageUrl').value = url;
+        }
+
+        function showFileInput() {
+            // Check if there is an image already displayed
+            var hoverImage = document.querySelector('#hoverImage');
+            if (hoverImage.classList.contains('hide_image')) {
+                // No image displayed, show file input
+                document.querySelector('#imageInput').click();
+            } else {
+                // Image is displayed, reset it
+                resetImage();
+            }
+        }
+
+
+
+        function fileSelected(event) {
+            if (event.target.files && event.target.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // Display the selected image
+                    var hoverImage = document.querySelector('#hoverImage');
+                    hoverImage.src = e.target.result;
+                    hoverImage.classList.remove('hide_image');
+                    document.querySelector('#addIcon').style.display = 'none';
+                };
+
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        }
+
+        function resetImage() {
+            // Clear the image src and show the add icon
+            var hoverImage = document.querySelector('#hoverImage');
+            hoverImage.src = '';
+            hoverImage.classList.add('hide_image');
+            document.querySelector('#addIcon').style.display = 'block';
+
+            // Optionally, reset the file input
+            document.querySelector('#imageInput').value = '';
+        }
+
+        document.querySelector('.overlay').addEventListener('click', showFileInput);
+    </script>
+}

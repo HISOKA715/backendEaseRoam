@@ -1,0 +1,160 @@
+﻿@using static webCore.Models.TripAnalysis;
+@model List<TripAnalysisViewModel>
+@{
+    ViewData["Title"] = "Overall Trip Analysis result";
+}
+
+<style>
+     .chart-container {
+        display: flex;
+        justify-content: space-around; 
+        align-items: center; 
+        margin-top:50px;
+        margin-bottom: 50px;
+    }
+
+    .table th, .table td {
+        text-align: center; 
+    }
+    .table {
+        
+        
+    }
+
+    .success {
+        color: green !important;
+    }
+
+    .fail {
+        color: red !important;
+    }
+
+    .text0{
+        margin-left: 40px;
+        position: relative;
+    }
+
+       .text0::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0; /* Ensures the underline spans the full width of the .text0 container */
+        bottom: 0; /* Adjust this value as needed to place the underline */
+        height: 1px; /* Adjusts the thickness of the underline */
+        background-color: #ddd; /* Change this to adjust the color of the line */
+    }
+
+    .button_click{
+        margin-bottom:50px;
+    }
+</style>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Record</th>
+            <th>Area</th>
+            <th>Prediction percentage</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var index = 1; // Initialize counter for record number
+        }
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@index</td> <!-- Increment record number -->
+                <td>@Html.DisplayFor(modelItem => item.area)</td>
+                <td>@Html.DisplayFor(modelItem => item.percentage)%</td>
+                <!-- Apply the CSS class based on the status -->
+                <td class="@(item.status == "Success" ? "success" : "fail")">@item.status</td>
+                <td><a role="button" asp-area="" asp-controller="Firestore" asp-action="GotoLocation" asp-route-id="@item.area" class="edit-btn btn btn-primary">View</a></td>
+            </tr>
+            index++; // Increment the counter
+        }
+    </tbody>
+</table>
+
+<div class="text0">
+<h1>Overall chart trip analysis result</h1>
+</div>
+<div class="chart-container">
+    <div id="bar_chart" style="width: 800px; height: 500px;"></div>
+    <div id="pie_chart" style="width: 800px; height: 500px;"></div>
+</div>
+<a class="edit-btn btn btn-secondary btn-margin-right" asp-area="" asp-controller="Firestore" asp-action="generateReport" role="button">Generate report</a>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', { 'packages': ['corechart', 'bar'] });
+    google.charts.setOnLoadCallback(drawCharts);
+
+    function drawCharts() {
+        drawBarChart();
+        drawPieChart();
+    }
+
+    function drawBarChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Area', 'Percentage'],
+    @foreach (var item in Model)
+    {
+        @:['@Html.Raw(item.area)', @Html.Raw(item.percentage)],
+    }
+            ]);
+
+        var options = {
+            chart: {
+                title: 'Prediction Percentage by Area',
+            },
+            bars: 'horizontal'
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('bar_chart'));
+        chart.draw(data, google.charts.Bar.convertOptions(options));
+    }
+
+    function drawPieChart() {
+        var accurate = @Model.Count(m => m.percentage >= 50);
+        var notAccurate = @Model.Count(m => m.percentage < 50);
+
+        var data = google.visualization.arrayToDataTable([
+            ['Accuracy', 'Count'],
+            ['Accurate', accurate],
+            ['Not Accurate', notAccurate]
+        ]);
+
+        var options = {
+            title: 'Overall Accuracy'
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('pie_chart'));
+        chart.draw(data, options);
+    }
+
+    document.getElementById('generate-report-btn').addEventListener('click', function () {
+        // Use html2canvas to take a snapshot of the div and jsPDF to generate the PDF
+        html2canvas(document.body).then(function (canvas) {
+            // Create a new jsPDF instance
+            const pdf = new jspdf.jsPDF({
+                orientation: 'landscape',
+                unit: 'px',
+                format: [canvas.width, canvas.height]
+            });
+
+            // Add the canvas to the PDF
+            const imgData = canvas.toDataURL('image/png');
+            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+
+            // Save the PDF
+            pdf.save('trip-analysis-report.pdf');
+        });
+    });
+</script>

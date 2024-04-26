@@ -1,0 +1,98 @@
+﻿@model List<webCore.Models.GetUserModel>
+
+@{
+    ViewData["Title"] = "ChangeUserRole";
+}
+
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: whitesmoke;
+        color: black;
+    }
+
+</style>
+
+<h3>User Role</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Edit Role</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.Username</td>
+                <td>@user.Name</td>
+
+                <td>
+                    @{
+                        var textInfo = new System.Globalization.CultureInfo("en-US", false).TextInfo;
+                        var category = textInfo.ToTitleCase(user.UserCategory.ToLower());
+                    }
+                    @category
+                </td>
+                <td>
+                    <button class="btn btn-primary" onclick="editRole('@user.Email')">Edit Role</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    if (window.jQuery) {
+        console.log('jQuery is loaded');
+    } else {
+        console.log('jQuery is not loaded');
+    }
+</script>
+
+<script>
+
+    function editRole(email) {
+        var roles = ["Owner", "Customer Support Admin", "Post Moderate Admin", "User", "Admin"];
+        var role = prompt("Select new role which include Owner, Customer Support Admin, Post Moderate Admin, User and Admin for user with email: " + email + " (or type 'dismiss' to cancel)", "");
+        if (role !== null) {
+            role = role.trim();
+            if (role.toLowerCase() === "dismiss") {
+                console.log("Edit role dismissed for user with email " + email);
+            } else if (roles.includes(role)) {
+                alert("New role selected for user with email " + email + ": " + role);
+
+                $.ajax({
+                    url: '/Firestore/UpdateUserRole',
+                    type: 'POST',
+                    data: { email: email, newRole: role },
+                    success: function (response) {
+                        console.log(response);
+                        window.location.href = "/Firestore/ChangeUserRole";
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            } else {
+                alert("Invalid role. Please select from the following options: " + roles.join(", "));
+            }
+        }
+    }
+</script>

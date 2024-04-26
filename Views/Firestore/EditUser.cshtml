@@ -1,0 +1,222 @@
+﻿@model webCore.Models.User.UserModel
+
+@{
+    ViewData["Title"] = "Edit Personal profile";
+}
+
+<style>body {
+    font-family: Arial, sans-serif;
+}
+
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+fieldset {
+    border: none;
+    width: 100%;
+}
+
+legend {
+    font-weight: bold;
+    padding-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+textarea,
+select {
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+    .button_position{
+        margin-top:30px;
+    }
+
+    .image-container {
+        position: relative;
+        width: 400px;
+        height: 400px;
+        cursor: pointer;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+        transition: .5s ease;
+        background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    }
+
+    .image-container:hover .overlay {
+        opacity: 1;
+    }
+
+    .add-icon {
+        color: white;
+        font-size: 50px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+</style>
+
+<div class="form-container">
+    <form asp-controller="Firestore" asp-action="EditUser" method="post" enctype="multipart/form-data">
+        <fieldset>
+            <legend>PERSONAL DETAILS</legend>
+            <div class="image-container" id="imageContainer">
+                    <img src="@Model.ImageUrl" id="hoverImage" style="width:100%; height:100%;">
+                    <div class="overlay" onclick="showFileInput()">
+                        <i class="add-icon fas fa-plus" id="addIcon" style="display:none;"></i>
+                    </div>
+                </div>
+                <input type="file" id="imageInput" name="imageFile" style="display:none;" onchange="fileSelected(event)" />
+
+            <input type="hidden" asp-for="ImageUrl" />
+
+            <label asp-for="UserName">Username</label>
+            <input asp-for="UserName" placeholder="UserName" disabled>
+            
+
+            <label asp-for="Name"> Name</label>
+            <input asp-for="Name" placeholder="Name">
+            <span asp-validation-for="Name" class="text-danger"></span> <br />
+
+            <label asp-for="HomeAdd">Address</label>
+            <textarea asp-for="HomeAdd" placeholder="Address"></textarea>
+            <span asp-validation-for="HomeAdd" class="text-danger"></span><br />
+
+            <label asp-for="Email">Email</label>
+            <input type="email" asp-for="Email" placeholder="example@email.com" disabled>
+
+            <label asp-for="PhoneNumber">Contact Number</label>
+            <input asp-for="PhoneNumber" placeholder="Contact Number">
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span> <br />
+
+
+            <label asp-for="DateOfBirth">Date of Birth</label>
+            <input asp-for="DateOfBirth" >
+            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            <br /> 
+            <div class="form-group">
+                <label asp-for="Gender">Gender</label>
+                <select asp-for="Gender" class="form-control">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+
+            <div class="button_position">
+            <button type="submit" class="btn btn-success">Edit</button>
+            
+            </div>
+        </fieldset>
+    </form>
+</div>
+
+<script>
+    function imageClicked() {
+        // Hide the image and show the add icon
+        document.querySelector('.hover-image').style.display = 'none';
+        document.querySelector('.add-icon').style.display = 'block';
+    }
+
+
+    function displayImage(url) {
+        var hoverImage = document.getElementById('hoverImage');
+        hoverImage.src = url;
+        hoverImage.classList.remove('hide_image');
+        document.getElementById('addIcon').style.display = 'none';
+
+        // Set the image URL in the hidden input field
+        document.getElementById('imageurl').value = url;
+    }
+
+    function showFileInput() {
+        // Check if there is an image already displayed
+        var hoverImage = document.querySelector('#hoverImage');
+        if (hoverImage.classList.contains('hide_image')) {
+            // No image displayed, show file input
+            document.querySelector('#imageInput').click();
+        } else {
+            // Image is displayed, reset it
+            resetImage();
+        }
+    }
+
+    function fileSelected(event) {
+        if (event.target.files && event.target.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                // Display the selected image
+                var hoverImage = document.querySelector('#hoverImage');
+                hoverImage.src = e.target.result;
+                hoverImage.classList.remove('hide_image');
+                document.querySelector('#addIcon').style.display = 'none';
+            };
+
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    }
+
+    function resetImage() {
+        // Clear the image src and show the add icon
+        var hoverImage = document.querySelector('#hoverImage');
+        hoverImage.src = '';
+        hoverImage.classList.add('hide_image');
+        document.querySelector('#addIcon').style.display = 'block';
+
+        // Optionally, reset the file input
+        document.querySelector('#imageInput').value = '';
+    }
+
+
+    // Adjust the overlay click function to only show the file input when the add icon is visible
+    document.querySelector('.overlay').addEventListener('click', function () {
+        if (document.querySelector('#addIcon').style.display !== 'none') {
+            document.querySelector('#imageInput').click(); // Trigger file input click
+        }
+    });
+</script>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

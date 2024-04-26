@@ -1,0 +1,179 @@
+﻿@model webCore.Models.Notification.NotificationModel
+
+@{
+    ViewData["Title"] = "Send Notification";
+}
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    .container {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding: 10px;
+    }
+
+    /* Create two columns that float next to eachother */
+    .column {
+        float: left;
+        width: 50%;
+        margin-top: 6px;
+        padding: 20px;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: flex-end; /* Align items to the right */
+        gap: 10px; /* Optional: adds some space between the buttons */
+    }
+
+    .image-container {
+        position: relative;
+        width: 400px;
+        height: 400px;
+        cursor: pointer;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+        transition: .5s ease;
+        background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    }
+
+    .image-container:hover .overlay {
+        opacity: 1;
+    }
+
+    .add-icon {
+        color: white;
+        font-size: 50px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+
+    .pac-container {
+        z-index: 10000;
+        position: absolute;
+    }
+    /* Style inputs */
+    input[type=text], select, textarea, input[type=number] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        margin-top: 6px;
+        margin-bottom: 16px;
+        resize: vertical;
+    }
+
+
+    input[type=submit] {
+        background-color: #04AA6D;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        cursor: pointer;
+    }
+
+        input[type=submit]:hover {
+            background-color: #45a049;
+        }
+        .bold{
+            font-weight:bold;
+        }
+        .top{
+            margin-top:100px;
+        }
+</style>
+
+
+<form asp-action="RepostNotification" asp-controller="Notification" method="post">
+    <div class="container">
+        <div class="row">
+            <div class="column">
+                <div class="image-container" id="imageContainer">
+                <img src="@Model.ImageURL" alt="lol" class="hide_image" style="width:100%; height:100%;">
+                </div>
+            </div>
+            <div class="column">
+               
+                <label asp-for="Title">Title:</label>
+            <p class="bold">@Model.Title</p>
+            
+                <label asp-for="body">Body:</label>
+            <p class="bold">@Model.body</p>
+                <label asp-for="CreateDate">Created by</label>
+            <p class="bold">@Model.date</p>
+                <label asp-for="RepostDate">Posted by</label>
+                <p class="bold">@Model.RepostDate</p>
+                <input type="hidden" asp-for="Id" />
+                <input asp-for="Title" type="hidden" />
+                <input asp-for="body" type="hidden" />
+                <input asp-for="ImageURL" type="hidden" />
+                <div class="top"></div>
+
+
+            <button type="submit" class="btn btn-warning">Repost</button>
+            <a asp-area=""
+               asp-controller="Firestore"
+               asp-action="GetaNotification1"
+               asp-route-id="@Model.Id"
+               role="button" class="btn btn-primary">Edit</a>
+            <a asp-controller="Firestore" asp-action="DeleteNotification" asp-route-id="@Model.Id" role="button" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('form').submit(function (e) {
+                e.preventDefault();
+                var form = $(this)[0]; // Get the form as a DOM element
+                var formData = new FormData(form); // Create FormData object from the form
+
+                $.ajax({
+                    type: "POST",
+                    url: form.action,
+                    data: formData,
+                    processData: false, // Prevent jQuery from converting the data into a query string
+                    contentType: false, // Prevent jQuery from overriding the Content-Type header
+                    success: function (response) {
+                        if (response.success) {
+                            // Redirect to the URL returned by the server
+                            window.location.href = response.redirectUrl;
+                        } else {
+                            // Handle the case where the server process was not successful
+                            console.error("Server responded with an error:", response);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error:", status, error);
+                    }
+                });
+            });
+        });
+    </script>
+}

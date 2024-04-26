@@ -1,0 +1,46 @@
+﻿@model webCore.Models.SocialMediaModel
+
+@{
+    ViewData["Title"] = "SocialMedia";
+}
+
+<h3>Details</h3>
+
+<div>
+
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserID)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserID)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SocialID)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SocialID)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SocialDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SocialDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SocialContent)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SocialContent)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SocialImage)
+        </dt>
+        <dd class="col-sm-10">
+            <img src="@Model.SocialImage" alt="Social Image" width="300" height="300" />
+        </dd>
+
+    </dl>
+</div>

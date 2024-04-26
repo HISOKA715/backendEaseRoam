@@ -1,0 +1,238 @@
+﻿@model webCore.Models.TourismAttraction.TourismAttractionViewModel
+@{
+    ViewData["Title"] = "Edit Attraction : " + @Model.Id;
+}
+
+<style>
+    * {
+  box-sizing: border-box;
+}
+
+/* Style inputs */
+input[type=text], select, textarea,input[type=number]  {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  resize: vertical;
+}
+
+
+input[type=submit] {
+  background-color: #04AA6D;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+
+/* Style the container/contact section */
+.container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 10px;
+}
+
+/* Create two columns that float next to eachother */
+.column {
+  float: left;
+  width: 50%;
+  margin-top: 6px;
+  padding: 20px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.button-container {
+    display: flex;
+    justify-content: flex-end; /* Align items to the right */
+    gap: 10px; /* Optional: adds some space between the buttons */
+}
+.image-container {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    cursor: pointer;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+    transition: .5s ease;
+    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+}
+
+.image-container:hover .overlay {
+    opacity: 1;
+}
+
+.add-icon {
+    color: white;
+    font-size: 50px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+
+
+/* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
+
+</style>
+<form asp-controller="Firestore" asp-action="EditAttraction" method="post" enctype="multipart/form-data">
+    
+<div class="container">
+    <div style="text-align:center">
+         <input asp-for="address" type="text" id="address" placeholder="Attraction adress" disabled>
+
+    </div>
+
+    <div class="row">
+        <div class="column">
+
+
+                <div class="image-container" id="imageContainer">
+                    <img src="@Model.ImageUrl" alt="Tourism Attraction" id="hoverImage" style="width:100%; height:100%;">
+                    <div class="overlay" onclick="showFileInput()">
+                        <i class="add-icon fas fa-plus" id="addIcon" style="display:none;"></i>
+                    </div>
+                </div>
+                <input type="file" id="imageInput" name="imageFile" style="display:none;" onchange="fileSelected(event)" />
+   
+            <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="ImageUrl" />
+            <label for="Latitude">Latitude</label>
+           <input asp-for="Latitude" type="number" id="latitude" placeholder="point latitude" min="-90" max="90"/>
+            <span asp-validation-for="Latitude" class="text-danger"></span><br/>
+
+              <label for="longitude">longitude</label>
+             <input asp-for="Longitude" type="number" id="longitude" placeholder="point longitude" min="-180" max="180"/>
+               <span asp-validation-for="Longitude" class="text-danger"></span><br/>
+
+               <label for="clickRate">Click Rate</label>
+              <input asp-for="ClickRate" type="number" id="clickrate" placeholder="click rate" />
+               <span asp-validation-for="ClickRate" class="text-danger"></span><br/>
+
+        </div>
+        <div class="column">
+            
+                <label for="name">Name</label>
+                <input asp-for="Name" type="text" id="name" placeholder="Tourism Attraction name.." />
+                <span asp-validation-for="Name" class="text-danger"></span><br/>
+
+                <label for="desc">Description</label>
+                <textarea asp-for="aDescription" id="desc" placeholder="Tourism Attraction description... " style="height:180px;"></textarea>
+                <span asp-validation-for="aDescription" class="text-danger"></span><br />
+
+                <label for="category">Category</label>
+               <select asp-for="Category" asp-items="Model.CategoryOptions"></select>
+               <span asp-validation-for="Category" class="text-danger"></span><br/>
+
+               <label for="State">State</label>
+               <select asp-for="State" asp-items="Model.StateOptions"></select>
+               <span asp-validation-for="State" class="text-danger"></span><br />
+
+
+                <label for="FoundDate">Found Date</label>
+                <input asp-for="PostFullDate" type="text" id="FoundDate" disabled/>
+                <div class="button-container"><br/>
+    <button type="submit" class="btn btn-success" value="Submit">Edit now</button>
+                    <a asp-area=""
+                       role="button"
+                        asp-controller="Firestore"
+                       asp-action="goback1" class="btn btn-secondary"> Cancel</a>
+</div>
+            
+        </div>
+    </div>
+</div>
+</form>
+
+<script>
+    function imageClicked() {
+        // Hide the image and show the add icon
+        document.querySelector('.hover-image').style.display = 'none';
+        document.querySelector('.add-icon').style.display = 'block';
+    }
+
+
+    function displayImage(url) {
+        var hoverImage = document.getElementById('hoverImage');
+        hoverImage.src = url;
+        hoverImage.classList.remove('hide_image');
+        document.getElementById('addIcon').style.display = 'none';
+
+        // Set the image URL in the hidden input field
+        document.getElementById('imageurl').value = url;
+    }
+
+    function showFileInput() {
+        // Check if there is an image already displayed
+        var hoverImage = document.querySelector('#hoverImage');
+        if (hoverImage.classList.contains('hide_image')) {
+            // No image displayed, show file input
+            document.querySelector('#imageInput').click();
+        } else {
+            // Image is displayed, reset it
+            resetImage();
+        }
+    }
+
+    function fileSelected(event) {
+        if (event.target.files && event.target.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                // Display the selected image
+                var hoverImage = document.querySelector('#hoverImage');
+                hoverImage.src = e.target.result;
+                hoverImage.classList.remove('hide_image');
+                document.querySelector('#addIcon').style.display = 'none';
+            };
+
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    }
+
+    function resetImage() {
+        // Clear the image src and show the add icon
+        var hoverImage = document.querySelector('#hoverImage');
+        hoverImage.src = '';
+        hoverImage.classList.add('hide_image');
+        document.querySelector('#addIcon').style.display = 'block';
+
+        // Optionally, reset the file input
+        document.querySelector('#imageInput').value = '';
+    }
+  
+
+    // Adjust the overlay click function to only show the file input when the add icon is visible
+    document.querySelector('.overlay').addEventListener('click', function () {
+        if (document.querySelector('#addIcon').style.display !== 'none') {
+            document.querySelector('#imageInput').click(); // Trigger file input click
+        }
+    });
+</script>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

@@ -1,0 +1,122 @@
+﻿@using static webCore.Models.Notification;
+@model List<NotificationModel>
+
+
+@{
+
+    ViewData["Title"] = "Notification Management";
+}
+
+
+
+<a class="btn btn-success add-attraction-btn" role="button" asp-controller="Firestore" asp-action="GotoNotification">Add Notification</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Record</th>
+            <th>Title</th>
+            <th>Body</th>
+            <th>Created at</th>
+            <th>Repost at</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var notification in Model)
+        {
+            <tr>
+                <td>
+                    <div class="record-flex-container">
+                        <span class="record-number">1</span>
+                        @if (!string.IsNullOrEmpty(notification.ImageURL))
+                        {
+                            <img src="@notification.ImageURL" alt="Image" class="record-image">
+                        }
+                    </div>
+                </td>
+                <td>@notification.Title</td>
+                <td>@notification.body</td>
+                <td>@notification.stringdate</td>
+                <td>@notification.stringRepostDate</td>
+                <td>
+                    <a asp-area=""
+                   role="button"
+                   asp-route-id="@notification.Id"
+                   asp-controller="Firestore"
+                   asp-action="GetaNotification" class="edit-btn btn btn-primary">View</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            updateRecordNumbers();
+            // Attach click event listeners to sortable table headers
+            document.querySelectorAll("th").forEach(header => {
+                if (["Title", "Body", "Created at", "Repost at"].includes(header.innerText.trim())) {
+                    header.style.cursor = "pointer";
+                    header.addEventListener("click", () => sortTableByColumn(header));
+                }
+            });
+        });
+
+        function sortTableByColumn(header) {
+            const tableBody = document.querySelector("table tbody");
+            const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+            const rows = Array.from(tableBody.querySelectorAll("tr"));
+            const isAscending = header.classList.contains("asc");
+            const dataType = header.innerText.trim() === "Created at" || header.innerText.trim() === "Repost at" ? "date" : "text";
+
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.querySelectorAll("td")[columnIndex].innerText.toLowerCase();
+                const cellB = rowB.querySelectorAll("td")[columnIndex].innerText.toLowerCase();
+
+                switch (dataType) {
+                    case "date":
+                        return compareDates(cellA, cellB, isAscending);
+                    case "text":
+                    default:
+                        return compareTexts(cellA, cellB, isAscending);
+                }
+            });
+
+            // Toggle ascending/descending
+            document.querySelectorAll("th").forEach(th => th.classList.remove("asc", "desc"));
+            header.classList.add(isAscending ? "desc" : "asc");
+
+            // Re-append rows to the table body
+            rows.forEach(row => tableBody.appendChild(row));
+
+            // Update record numbers
+            updateRecordNumbers();
+        }
+
+        function compareTexts(a, b, isAscending) {
+            if (a < b) return isAscending ? -1 : 1;
+            if (a > b) return isAscending ? 1 : -1;
+            return 0;
+        }
+
+        function compareDates(a, b, isAscending) {
+            // Convert dd/mm/yyyy format to mm/dd/yyyy format for correct Date parsing
+            const formatDateString = dateStr => {
+                const parts = dateStr.split("/");
+                return `${parts[1]}/${parts[0]}/${parts[2]}`; // Convert to mm/dd/yyyy format
+            };
+
+            const dateA = new Date(formatDateString(a));
+            const dateB = new Date(formatDateString(b));
+            return isAscending ? dateA - dateB : dateB - dateA;
+        }
+        function updateRecordNumbers() {
+            const recordNumbers = document.querySelectorAll(".record-number");
+            recordNumbers.forEach((recordNumber, index) => {
+                recordNumber.textContent = index + 1;
+            });
+        }
+    </script>
+}

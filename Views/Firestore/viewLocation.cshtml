@@ -1,0 +1,184 @@
+﻿@model webCore.Models.TripAnalysis.LocationViewModel
+
+
+@{
+    ViewData["Title"] = "Overall Trip Analysis result : " + Model.location;
+}
+
+<!-- Add Bootstrap CSS -->
+    <script src="https://kit.fontawesome.com/4597a49bf5.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
+    <style>
+        body {
+          font-family: 'Arial', sans-serif;
+       
+        }
+        .icon-box {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+          color: #fff;
+          width: 50px;
+          height: 50px;
+          border-radius: 25px;
+          background-color: #28a745;
+          margin-right: 15px;
+        }
+        .card-box {
+          padding: 20px;
+          margin-bottom: 20px;
+          background-color: #fff;
+          border-radius: 8px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+        .card-box:hover {
+          transform: translateY(-5px);
+          transition: transform .5s;
+        }
+        .chart-box {
+          padding: 20px;
+          background-color: #fff;
+          border-radius: 8px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+    .chart-container {
+        height: 300px;
+        width: 100%;
+    }
+      </style>
+
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card-box text-center">
+            <div class="icon-box bg-primary mb-3">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <h1>@Model.TotalFeedback</h1>
+            <h4>Total User Feedback Record</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-box text-center">
+            <div class="icon-box bg-warning mb-3">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h1>@Model.Accurate</h1>
+            <h4>Accurate</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-box text-center">
+            <div class="icon-box bg-danger mb-3">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <h1>@Model.NotAccurate</h1>
+            <h4>Not Accurate</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-box text-center">
+            <div class="icon-box bg-success mb-3">
+                <i class="fa-solid fa-percent"></i>
+            </div>
+            <h1> @Model.AccuracyPercentage %</h1>
+            <h4>Accuracy Percentage</h4>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="chart-box">
+            <h4>Bar Chart</h4>
+            <div style="width: 100%; height: 400px;">
+            <canvas id="accuracyBarChart" width="400" height="155"></canvas>
+            </div>
+        </div>
+    </div>
+   <div class="col-md-4">
+    <div class="chart-box">
+        <h4>Pie chart</h4>
+
+            <div class="chart-container" style="width: 100%; height: 400px; display: flex; justify-content: center;">
+            <canvas id="accuracyChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('accuracyChart').getContext('2d');
+    var accuracyChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Accurate', 'Not Accurate'],
+            datasets: [{
+                label: 'Feedback Accuracy',
+                data: [@Model.Accurate, @Model.NotAccurate],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(255, 99, 132, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Feedback Accuracy'
+                }
+            }
+        }
+    });
+</script>
+<script>
+    var barCtx = document.getElementById('accuracyBarChart').getContext('2d');
+    var accuracyBarChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Accuracy'],
+            datasets: [{
+                label: 'Accurate',
+                data: [@Model.Accurate],
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Not Accurate',
+                data: [@Model.NotAccurate],
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+    
+<!-- Bootstrap and jQuery libraries -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+

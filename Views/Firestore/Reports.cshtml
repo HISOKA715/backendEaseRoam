@@ -1,0 +1,70 @@
+﻿@model IEnumerable<webCore.Models.ReportsModel>
+
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<h3>Post Moderation</h3>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                User ID
+            </th>
+            <th>
+                Social ID
+            </th>
+            <th>
+                Reason
+            </th>
+            <th>
+                Time Report
+            </th>
+            <th>
+                Report Result
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SocialID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Reason)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReportTime)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReportResult)
+                </td>
+
+                @if (item.ReportResult != "Post Removed" && item.ReportResult != "Post Remain")
+                {
+                    <td>
+                        @Html.ActionLink("Details", "SocialMedia", new { socialId = item.SocialID }) |
+                        @Html.ActionLink("Delete", "Delete", new { socialId = item.SocialID }) |
+                        @Html.ActionLink("Keep", "Keep", new { socialId = item.SocialID })
+                    </td>
+                }
+                else if (item.ReportResult != "Post Removed")
+                {
+                    <td>
+                        @Html.ActionLink("Details", "SocialMedia", new { socialId = item.SocialID })
+                    </td>
+                }
+
+            </tr>
+        }
+    </tbody>
+</table>

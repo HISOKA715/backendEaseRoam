@@ -1,0 +1,210 @@
+﻿@model webCore.Models.Feedback.FeedbackViewModel
+
+@{
+    ViewData["Title"] = "Feedback Details";
+}
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    .container {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding: 10px;
+    }
+
+    /* Create two columns that float next to eachother */
+    .column {
+        float: left;
+        width: 50%;
+        margin-top: 6px;
+        padding: 20px;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: flex-end; /* Align items to the right */
+        gap: 10px; /* Optional: adds some space between the buttons */
+    }
+
+    .image-container {
+        position: relative;
+        width: 400px;
+        height: 400px;
+        cursor: pointer;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+        transition: .5s ease;
+        background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    }
+
+    .image-container:hover .overlay {
+        opacity: 1;
+    }
+
+    .add-icon {
+        color: white;
+        font-size: 50px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+
+    .pac-container {
+        z-index: 10000;
+        position: absolute;
+    }
+    /* Style inputs */
+    input[type=text], select, textarea, input[type=number] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        margin-top: 6px;
+        margin-bottom: 16px;
+        resize: vertical;
+    }
+
+    textarea {
+        width: 90%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        margin-top: 6px;
+        margin-bottom: 16px;
+        resize: vertical;
+    }
+
+    .lol {
+        width: 95%;
+        padding: 12px;
+        margin-top: 6px;
+        margin-bottom: 16px;
+    }
+
+    input[type=submit] {
+        background-color: #04AA6D;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        cursor: pointer;
+    }
+
+        input[type=submit]:hover {
+            background-color: #45a049;
+        }
+
+    .bold {
+        font-weight: bold;
+    }
+
+    .top {
+        margin-top: 10px;
+    }
+
+    .edit-btn {
+        width: 10%;
+        margin-left: 10px;
+    }
+</style>
+<form asp-action="Reply" asp-controller="Notification" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="replyID" id="replyID" />
+    <div class="container">
+        <div class="row">
+            <div class="column">
+                <label asp-for="Id">Document ID:</label>
+                <p class="bold">@Model.Id</p>
+                <label asp-for="FeedbackCategory">Feedback Category:</label>
+                <p class="bold">@Model.FeedbackCategory</p>
+                <label asp-for="FeedbackCategory">Feedback Date:</label>
+                <p class="bold">@Model.FeedbackDate</p>
+                <label asp-for="Read">Read:</label>
+                <p class="bold">@Model.Read</p>
+                <label asp-for="replyDate">Reply Date:</label>
+                <p class="bold">@Model.replyDate</p>
+            </div>
+            <div class="column">
+                <label asp-for="UserName">Feedback by:</label>
+                <p class="bold">@Model.UserName</p>
+                <label asp-for="FeedbackLocation">Feedback Location:</label>
+                <p class="bold">@Model.FeedbackLocation</p>
+                <label asp-for="FeedbackAccuracy">Feedback Accuracy:</label>
+                <p class="bold">@Model.FeedbackAccuracy</p>
+                <label asp-for="reply">Reply:</label>
+                <p class="bold">@Model.reply</p>
+
+                <div class="top"></div>
+            </div>
+            <label asp-for="FeedbackDesc">Feedback:</label>
+            <div class="lol">
+                <textarea asp-for="FeedbackDesc" placeholder="Feedback.." style="height:180px;" readonly></textarea>
+            </div>
+            <label asp-for="replyDesc">Reply:</label>
+            <div class="lol">
+                <textarea asp-for="replyDesc" id="desc" placeholder="reply" style="height:180px;"></textarea>
+                <span asp-validation-for="replyDesc" class="text-danger"></span><br />
+            </div>
+
+            <button type="submit" class="edit-btn btn btn-secondary btn-margin-right">Reply</button>
+        </div>
+    </div>
+</form>
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            // Check if replyID has a value and adjust the form elements accordingly
+            var replyID = $('#replyID').val(); // Make sure the input has id="replyID"
+            if (replyID !== null && replyID.trim() !== "") {
+                $('.edit-btn').hide(); // Hide the submit button
+                $('#desc').prop('readonly', true); // Disable the textarea
+            }
+
+            $('form').submit(function (e) {
+                e.preventDefault();
+                var form = $(this)[0]; // Get the form as a DOM element
+                var formData = new FormData(form); // Create FormData object from the form
+
+                $.ajax({
+                    type: "POST",
+                    url: form.action,
+                    data: formData,
+                    processData: false, // Prevent jQuery from converting the data into a query string
+                    contentType: false, // Prevent jQuery from overriding the Content-Type header
+                    success: function (response) {
+                        // Redirect to the URL returned by the server or handle success
+                        window.location.href = response.redirectUrl;
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle the error
+                        console.error("Error:", status, error);
+                    }
+                });
+            });
+        });
+    </script>
+}

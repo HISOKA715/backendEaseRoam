@@ -1,0 +1,166 @@
+﻿<style>
+    #chat-messages {
+        display: flex;
+        flex-direction: column;
+        margin: 0 auto;
+        width: 70%;
+    }
+
+    #message-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+        width: 70%;
+    }
+
+    #message-text {
+        width: calc(100% - 10px);
+        padding: 5px;
+        border-radius: 10px;
+        margin-right: 10px;
+    }
+
+    #image-upload {
+        margin-right: 5px;
+    }
+
+    .message {
+        padding: 5px;
+        margin-bottom: 5px;
+        overflow: auto;
+        display: inline-block;
+        max-width: 50%;
+    }
+
+    .message-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+
+
+    .sent-message-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+
+        .sent-message-container .message-text-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+    .message p {
+        margin: 0;
+        font-size: 12px;
+    }
+
+    .message img {
+        max-width: 150px;
+        height: auto;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .message-date {
+        color: #888;
+        font-size: 10px;
+        margin-top: 3px;
+    }
+
+    .username {
+        font-weight: bold;
+        font-size: 26px;
+        margin-top: 6px;
+        color: white;
+    }
+
+    .received-message .message-text {
+        border: 1px solid #2196F3;
+        border-radius: 10px;
+        padding: 5px;
+        display: inline-block;
+    }
+
+    .sent-message .message-text {
+        background-color: #2196F3;
+        border-radius: 10px;
+        color: white;
+        padding: 5px;
+        display: inline-block;
+        text-align: right;
+    }
+
+
+    #toolbar {
+        background-color: lightblue;
+        padding: 5px;
+        margin: 0 auto;
+        width: 70%;
+    }
+</style>
+
+<div id="toolbar">
+    @{
+        var displayedUsername = false;
+        foreach (var message in Model.Item1)
+        {
+            if (!displayedUsername)
+            {
+                var userId = message.UserID;
+                if (Model.Item2.ContainsKey(userId))
+                {
+                    var username = Model.Item2[userId];
+                    <p class="username">@username</p>
+                    displayedUsername = true;
+                    break;
+                }
+            }
+        }
+
+    }
+</div>
+
+<div id="chat-messages">
+    @foreach (var message in Model.Item1)
+    {
+        <div class="message-container @(message.IsReceived ? "received-message" : "sent-message-container")">
+            <div class="message @(message.IsReceived ? "received-message" : "sent-message")">
+
+                @if (!string.IsNullOrEmpty(message.MessageImage))
+                {
+                    <div>
+                        <img src="@message.MessageImage" alt="Message Image" />
+                    </div>
+                }
+                @if (message.IsReceived)
+                {
+                    <div class="message-text">
+                        <p>@message.MessageText</p>
+                    </div>
+                    <p class="message-date">@message.MessageDate</p>
+                }
+                else
+                {
+                    <div class="message-text-container">
+                        <div class="message-text sent-message">
+                            <p>@message.MessageText</p>
+                        </div>
+                        <p class="message-date">@message.MessageDate</p>
+                    </div>
+                }
+
+            </div>
+        </div>
+    }
+</div>
+<form id="message-form" enctype="multipart/form-data" method="post" action="@Url.Action("SendMessage", "Firestore")">
+    <input type="file" name="file" accept="image/*" />
+    <input type="text" id="message-text" name="messageText" placeholder="Type your message here..." />
+    <button class="btn btn-primary" type="submit">SEND</button>
+    <input type="hidden" name="userId" value="@Model.Item3" />
+
+
+</form>

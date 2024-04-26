@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "Feedback management";
+}
+
+@using static webCore.Models.Feedback;
+@model List<FeedbackViewModel>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Record</th>
+            <th>Feedback Date</th>
+            <th>Feedback Description</th>
+            <th>Feedback Category</th>
+            <th>Feedback By</th>
+            <th>Reply</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var feedback in Model)
+        {
+            <tr>
+                <td>1</td>
+                <td>@feedback.FeedbackDate.ToString("dd/MM/yyyy")</td> <!-- Format date as needed -->
+                <td>@feedback.FeedbackDesc</td>
+                <td>@feedback.FeedbackCategory</td>
+                <td>@feedback.UserName</td> <!-- Display the user name fetched -->
+                <td>@feedback.reply</td>
+                <td> <a class="edit-btn btn btn-secondary btn-margin-right"
+           asp-area=""
+           asp-controller="Firestore"
+           asp-action="GetaFeedback"
+           asp-route-id="@feedback.Id"
+           role="button">View</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    // Select all the rows in the table body
+    var rows = document.querySelectorAll("table.table tbody tr");
+
+    // Iterate through each row and set the first cell's text to the row number (1-indexed)
+    rows.forEach(function(row, index) {
+        // The first cell (td) of each row gets the index + 1 (to make it 1-indexed)
+        var firstCell = row.cells[0];
+        if (firstCell) {
+            firstCell.textContent = index + 1;
+        }
+    });
+});
+    
+</script>
