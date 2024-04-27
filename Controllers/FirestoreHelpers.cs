@@ -1404,7 +1404,6 @@ namespace webCore.Controllers {
                         {
                             ViewData["IsLoggedIn"] = !string.IsNullOrEmpty(HttpContext.Session.GetString("_UserToken"));
                             List<ReportsModel> reports = await GetReports();
-                            reports.Reverse();
                             return View(reports);
                         }
                         else
@@ -1421,7 +1420,7 @@ namespace webCore.Controllers {
         {
             List<ReportsModel> reports = new List<ReportsModel>();
 
-            Query reportsQuery = _firestoreDb.Collection("Reports");
+            Query reportsQuery = _firestoreDb.Collection("Reports").OrderByDescending("ReportTime");
             QuerySnapshot reportsQuerySnapshot = await reportsQuery.GetSnapshotAsync();
 
             foreach (DocumentSnapshot reportSnapshot in reportsQuerySnapshot.Documents)
