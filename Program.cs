@@ -29,11 +29,12 @@ var firebaseApp = FirebaseApp.Create(new AppOptions()
 {
     Credential = GoogleCredential.FromFile("C:/Users/user/Documents/Visual Studio 2022/webCore/Controllers/fir-project-7ba4f-firebase-adminsdk-3pu6p-8d30027601.json"),
 });
+builder.Services.AddSingleton(firebaseApp);
 
 
 builder.Services.AddSingleton<FirestoreDb>(provider =>
 {
-    string filePath = "C:/Users/chunk/Documents/Visual Studio 2022/webCore/Controllers/fir-project-7ba4f-firebase-adminsdk-3pu6p-8d30027601.json";
+    string filePath = "C:/Users/user/Documents/Visual Studio 2022/webCore/Controllers/fir-project-7ba4f-firebase-adminsdk-3pu6p-8d30027601.json";
     Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", filePath);
     return FirestoreDb.Create("fir-project-7ba4f");
 });

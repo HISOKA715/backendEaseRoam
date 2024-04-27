@@ -1,10 +1,9 @@
 ﻿@model IEnumerable<webCore.Models.ReportsModel>
 
 @{
-    ViewData["Title"] = "Reports";
+    ViewData["Title"] = "Post Moderation";
 }
 
-<h3>Post Moderation</h3>
 
 
 <table class="table">
@@ -48,23 +47,44 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.ReportResult)
                 </td>
-
                 @if (item.ReportResult != "Post Removed" && item.ReportResult != "Post Remain")
                 {
                     <td>
-                        @Html.ActionLink("Details", "SocialMedia", new { socialId = item.SocialID }) |
-                        @Html.ActionLink("Delete", "Delete", new { socialId = item.SocialID }) |
-                        @Html.ActionLink("Keep", "Keep", new { socialId = item.SocialID })
+                        @Html.ActionLink("Details", "SocialMedia", new { socialId = item.SocialID, reportTime = item.ReportTime }) |
+                        @Html.ActionLink("Delete", "Delete", new { socialId = item.SocialID, reportTime = item.ReportTime, id = item.Id }, new { onclick = "return confirmDelete('" + item.Id + "');" }) |
+                        @Html.ActionLink("Keep", "Keep", new { socialId = item.SocialID, reportTime = item.ReportTime, id = item.Id }, new { onclick = "return confirmKeep('" + item.Id + "');" })
                     </td>
                 }
-                else if (item.ReportResult != "Post Removed")
+
+
+                @if (item.ReportResult == "Post Remain")
                 {
                     <td>
-                        @Html.ActionLink("Details", "SocialMedia", new { socialId = item.SocialID })
+                        @Html.ActionLink("Details", "SocialMedia", new { socialId = item.SocialID, reportTime = item.ReportTime })
                     </td>
                 }
+                
+
 
             </tr>
         }
     </tbody>
+    <script>
+        function confirmDelete(id) {
+            return confirm('Are you sure you want to delete item with ID: ' + id + '?');
+        }
+
+        function confirmKeep(id) {
+            return confirm('Are you sure you want to keep item with ID: ' + id + '?');
+        }
+
+       
+    </script>
+
+    @if (TempData["Message"] != null)
+    {
+        <script>alert('@TempData["Message"]');</script>
+    }
+
+
 </table>

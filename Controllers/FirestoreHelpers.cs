@@ -22,6 +22,7 @@ using static webCore.Models.User;
 using System.Security.Cryptography;
 using Firebase.Storage;
 using Google.Cloud.Firestore.V1;
+using Firebase.Auth.Providers;
 
 
 namespace webCore.Controllers {
@@ -31,15 +32,54 @@ namespace webCore.Controllers {
     public class FirestoreController : Controller
     {
         private readonly FirestoreDb _firestoreDb;
-
-
-
-        public FirestoreController()
+        private readonly FirebaseAuth _auth;
+        public FirestoreController(FirebaseApp firebaseApp)
         {
-            string filePath = "C:/Users/chunk/Documents/Visual Studio 2022/webCore/Controllers/fir-project-7ba4f-firebase-adminsdk-3pu6p-8d30027601.json";
+            string filePath = "C:/Users/user/Documents/Visual Studio 2022/webCore/Controllers/fir-project-7ba4f-firebase-adminsdk-3pu6p-8d30027601.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", filePath);
 
+          
             _firestoreDb = FirestoreDb.Create("fir-project-7ba4f");
+            _auth = FirebaseAuth.GetAuth(firebaseApp);
+        }
+        public IActionResult Register()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterModel registerModel)
+        {
+                    var fbAuth = await _auth.CreateUserAsync(new UserRecordArgs
+                    {
+                        Email = registerModel.Email,
+                        Password = registerModel.Password
+                    });
+
+                    string uid = fbAuth.Uid;
+
+                    var newUser = new
+                    {
+                        registerModel.Email,
+                        registerModel.Username,
+                        registerModel.Name,
+                        DateOfBirth = registerModel.DateOfBirth.ToString("d/M/yyyy"),
+                        registerModel.Gender,
+                        registerModel.PhoneNumber,
+                        registerModel.HomeAdd,
+                        ProfileImage = (string)null,
+                        UserCategory = "User",
+                        PreferAttraction = 1,
+                        PreferOther = 1,
+                        PreferRestaurant = 1,
+                        PreferShopping = 1
+                    };
+
+                    CollectionReference usersCollection = _firestoreDb.Collection("users");
+                    DocumentReference newUserDocRef = usersCollection.Document(uid);
+                    await newUserDocRef.SetAsync(newUser);
+
+                    return RedirectToAction("Index", "Home");
+               
         }
 
         [HttpPost]
@@ -1364,6 +1404,7 @@ namespace webCore.Controllers {
                         {
                             ViewData["IsLoggedIn"] = !string.IsNullOrEmpty(HttpContext.Session.GetString("_UserToken"));
                             List<ReportsModel> reports = await GetReports();
+                            reports.Reverse();
                             return View(reports);
                         }
                         else
@@ -1386,7 +1427,9 @@ namespace webCore.Controllers {
             foreach (DocumentSnapshot reportSnapshot in reportsQuerySnapshot.Documents)
             {
                 ReportsModel report = reportSnapshot.ConvertTo<ReportsModel>();
+                report.Id = reportSnapshot.Id;
                 reports.Add(report);
+
             }
 
             return reports;
@@ -1408,66 +1451,71 @@ namespace webCore.Controllers {
             }
             else
             {
-                return NotFound();
+                TempData["Message"] = "No post found or post removed.";
+                return RedirectToAction("Reports");
             }
         }
-        public ActionResult Delete(string socialId)
+        public ActionResult Delete(string socialId, string reportTime)
         {
             var reportsRef = _firestoreDb.Collection("Reports");
-            var reportQuery = reportsRef.WhereEqualTo("SocialID", socialId);
+            var reportQuery = reportsRef.WhereEqualTo("SocialID", socialId)
+                                         .WhereEqualTo("ReportTime", reportTime);
             var reportSnapshot = reportQuery.GetSnapshotAsync().Result;
             var reportDoc = reportSnapshot.Documents.FirstOrDefault();
 
             if (reportDoc != null)
             {
-
-                bool userConfirmedDelete = true;
-
-                if (userConfirmedDelete)
+                var socialMediaRef = _firestoreDb.Collection("SocialMedia").Document(socialId);
+                var socialMediaSnapshot = socialMediaRef.GetSnapshotAsync().Result;
+                if (socialMediaSnapshot.Exists)
                 {
-
-                    var socialMediaRef = _firestoreDb.Collection("SocialMedia").Document(socialId);
                     socialMediaRef.DeleteAsync();
-
-
-                    reportDoc.Reference.UpdateAsync("ReportResult", "Post Removed");
                 }
                 else
                 {
-
-
+                    var relatedReportsRef = reportsRef.WhereEqualTo("SocialID", socialId);
+                    var relatedReportsSnapshot = relatedReportsRef.GetSnapshotAsync().Result;
+                    foreach (var relatedReport in relatedReportsSnapshot.Documents)
+                    {
+                        relatedReport.Reference.UpdateAsync("ReportResult", "Post Removed");
+                    }
                 }
-            }
-            else
-            {
 
+                reportDoc.Reference.UpdateAsync("ReportResult", "Post Removed");
             }
-
 
             return RedirectToAction("Reports");
         }
-        public ActionResult Keep(string socialId)
+        public ActionResult Keep(string socialId, string reportTime)
         {
-
-
             var reportsRef = _firestoreDb.Collection("Reports");
-            var reportQuery = reportsRef.WhereEqualTo("SocialID", socialId);
+            var reportQuery = reportsRef.WhereEqualTo("SocialID", socialId)
+                                         .WhereEqualTo("ReportTime", reportTime);
             var reportSnapshot = reportQuery.GetSnapshotAsync().Result;
             var reportDoc = reportSnapshot.Documents.FirstOrDefault();
 
             if (reportDoc != null)
             {
-
-                reportDoc.Reference.UpdateAsync("ReportResult", "Post Remain");
+                var socialMediaRef = _firestoreDb.Collection("SocialMedia").Document(socialId);
+                var socialMediaSnapshot = socialMediaRef.GetSnapshotAsync().Result;
+                if (!socialMediaSnapshot.Exists)
+                {
+                    var relatedReportsRef = reportsRef.WhereEqualTo("SocialID", socialId);
+                    var relatedReportsSnapshot = relatedReportsRef.GetSnapshotAsync().Result;
+                    foreach (var relatedReport in relatedReportsSnapshot.Documents)
+                    {
+                        relatedReport.Reference.UpdateAsync("ReportResult", "Post Removed");
+                    }
+                }
+                else
+                {
+                    reportDoc.Reference.UpdateAsync("ReportResult", "Post Remain");
+                }
             }
-            else
-            {
-
-            }
-
 
             return RedirectToAction("Reports");
         }
+
 
         [HttpPost]
         public async Task<IActionResult> UpdateUserRole(string email, string newRole)

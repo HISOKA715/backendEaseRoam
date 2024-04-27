@@ -3,7 +3,7 @@
         display: flex;
         flex-direction: column;
         margin: 0 auto;
-        width: 70%;
+        width: 100%;
     }
 
     #message-form {
@@ -11,7 +11,7 @@
         justify-content: center;
         align-items: center;
         margin: 0 auto;
-        width: 70%;
+        width: 100%;
     }
 
     #message-text {
@@ -74,18 +74,18 @@
         font-weight: bold;
         font-size: 26px;
         margin-top: 6px;
-        color: white;
+        color: black
     }
 
     .received-message .message-text {
-        border: 1px solid #2196F3;
+        border: 1px solid #007bff;
         border-radius: 10px;
         padding: 5px;
         display: inline-block;
     }
 
     .sent-message .message-text {
-        background-color: #2196F3;
+        background-color: #007bff;
         border-radius: 10px;
         color: white;
         padding: 5px;
@@ -95,10 +95,9 @@
 
 
     #toolbar {
-        background-color: lightblue;
         padding: 5px;
         margin: 0 auto;
-        width: 70%;
+        width: 100%;
     }
 </style>
 
@@ -122,7 +121,7 @@
 
     }
 </div>
-
+<hr class="long-line">
 <div id="chat-messages">
     @foreach (var message in Model.Item1)
     {

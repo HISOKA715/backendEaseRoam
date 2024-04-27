@@ -1,6 +1,6 @@
 ﻿@model List<(webCore.Models.Message, string, string)>
 @{
-    ViewData["Title"] = "UserChat";
+    ViewData["Title"] = "Customer Service Chat";
 }
 
 <style>
@@ -36,12 +36,8 @@
     }
 </style>
 
-<table class="table center-table" style="width: 50%;">
-    <thead>
-        <tr class="center-text">
-            <th colspan="2"><h3>Chat</h3></th>
-        </tr>
-    </thead>
+<table class="table center-table" style="width: 100%;">
+    
     <tbody>
         @foreach (var messagesWithUserData in Model)
         {

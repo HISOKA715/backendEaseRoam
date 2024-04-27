@@ -1,7 +1,7 @@
 ﻿@model List<webCore.Models.GetUserModel>
 
 @{
-    ViewData["Title"] = "ChangeUserRole";
+    ViewData["Title"] = "Change User Role";
 }
 
 <style>
@@ -23,7 +23,6 @@
 
 </style>
 
-<h3>User Role</h3>
 
 <table>
     <thead>
@@ -70,7 +69,7 @@
 
     function editRole(email) {
         var roles = ["Owner", "Customer Support Admin", "Post Moderate Admin", "User", "Admin"];
-        var role = prompt("Select new role which include Owner, Customer Support Admin, Post Moderate Admin, User and Admin for user with email: " + email + " (or type 'dismiss' to cancel)", "");
+        var role = prompt("Select new role which include Owner, Customer Support Admin, User and Admin for user with email: " + email + " (or type 'dismiss' to cancel)", "");
         if (role !== null) {
             role = role.trim();
             if (role.toLowerCase() === "dismiss") {

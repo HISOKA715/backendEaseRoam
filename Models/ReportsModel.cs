@@ -6,6 +6,9 @@ namespace webCore.Models
     [FirestoreData]
     public class ReportsModel
     {
+
+        [FirestoreProperty]
+        public string Id { get; set; }
         [FirestoreProperty]
         public string Reason { get; set; }
 

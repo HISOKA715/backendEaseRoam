@@ -1,0 +1,163 @@
+﻿@model webCore.Models.RegisterModel
+@{
+    Layout = String.Empty;
+}
+
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ease Roam</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container {
+            display: flex;
+            margin-top: 5%;
+        }
+
+        .left, .right {
+            padding: 20px;
+            width: 50%;
+            border: 1px solid #ccc;
+        }
+
+        .right {
+            border: 1px solid #ccc;
+        }
+
+        .login {
+            margin-top: 100px;
+        }
+
+        .top {
+            margin-top: 50px;
+        }
+
+        .btn-primary {
+            margin-top: 10px;
+        }
+
+        .top1 {
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <h1>Ease Roam</h1>
+
+            <img src="~/image/travel_login_photo.png" alt="Admin illustration" class="img-fluid" style="width:100%;">
+        </div>
+        <div class="right">
+            <h2 class="top1">Register</h2>
+            <p class="text-black-50 mb-5">Create Your Account!</p>
+            <form asp-controller="Firestore" asp-action="Register" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mb-5">
+                <input asp-for="Name" class="form-control" placeholder="Full Name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-5">
+                <input asp-for="Username" class="form-control" placeholder="Username" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-5">
+                <select asp-for="Gender" class="form-control" placeholder="Gender">
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-5">
+
+                <input asp-for="DateOfBirth" class="form-control" placeholder="Date Of Birth" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-5">
+
+                <input asp-for="Email" class="form-control" placeholder="Email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-5">
+                <input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number (+60123456789)" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-5">
+                <input asp-for="HomeAdd" class="form-control" placeholder="Home Address" />
+                <span asp-validation-for="HomeAdd" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-5">
+
+                <input asp-for="Password" class="form-control" placeholder="Password" type="password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-5">
+
+                <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" type="password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-5 ">
+                <input type="submit" value="Register" class="btn btn-primary" style=" width: 100%;" />
+            </div>
+            </form>
+            
+            <p>Aready have an account? <a asp-action="Index" class="link-info">Login here</a></p>
+        </div>
+    </div>
+    <!-- Add Bootstrap JS and Popper JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
+</body>
+</html>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+       
+        function showRegistrationSuccessModal() {
+            $('#registrationSuccessModal').modal('show');
+        }
+
+        $('form').submit(function () {
+            showRegistrationSuccessModal();
+            $('#Password').val('');
+            $('#ConfirmPassword').val('');
+        });
+
+        $('#registrationSuccessModal').on('hidden.bs.modal', function () {
+            window.location.href = '@Url.Action("Index", "Home")';
+        });
+    </script>
+}
+
+<div class="modal fade" id="registrationSuccessModal" tabindex="-1" role="dialog" aria-labelledby="registrationSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registrationSuccessModalLabel">Registration Successful!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Registration successful! Please login to continue.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

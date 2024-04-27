@@ -50,6 +50,6 @@ namespace webCore.Controllers
         {
             return View("Forgetpassword");
         }
-
+        
     }
 }
