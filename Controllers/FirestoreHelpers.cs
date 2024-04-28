@@ -1333,7 +1333,7 @@ namespace webCore.Controllers {
 
             CollectionReference sentMessageRef = _firestoreDb.Collection("Message");
             QuerySnapshot sentMessageQuerySnapshot = await sentMessageRef
-                .WhereEqualTo("UserID", uid)
+                
                 .WhereEqualTo("RecipientID", userId)
                 .WhereEqualTo("MessageChannel", "Respond Service")
                 .GetSnapshotAsync();

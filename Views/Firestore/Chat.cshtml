@@ -122,7 +122,7 @@
     }
 </div>
 <hr class="long-line">
-<div id="chat-messages">
+<div id="chat-messages" style="overflow-y: auto; max-height: 500px;">
     @foreach (var message in Model.Item1)
     {
         <div class="message-container @(message.IsReceived ? "received-message" : "sent-message-container")">
@@ -163,3 +163,16 @@
 
 
 </form>
+
+<script>
+    function scrollToBottom() {
+        var chatMessages = document.getElementById('chat-messages');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    window.onload = function () {
+        scrollToBottom();
+    };
+
+</script>
+
