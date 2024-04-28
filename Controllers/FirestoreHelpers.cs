@@ -46,41 +46,61 @@ namespace webCore.Controllers {
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> Register(RegisterModel registerModel)
         {
-                    var fbAuth = await _auth.CreateUserAsync(new UserRecordArgs
-                    {
-                        Email = registerModel.Email,
-                        Password = registerModel.Password
-                    });
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                   
+                    return View(registerModel);
+                }
 
-                    string uid = fbAuth.Uid;
+                var fbAuth = await _auth.CreateUserAsync(new UserRecordArgs
+                {
+                    Email = registerModel.Email,
+                    Password = registerModel.Password
+                });
 
-                    var newUser = new
-                    {
-                        registerModel.Email,
-                        registerModel.Username,
-                        registerModel.Name,
-                        DateOfBirth = registerModel.DateOfBirth.ToString("d/M/yyyy"),
-                        registerModel.Gender,
-                        registerModel.PhoneNumber,
-                        registerModel.HomeAdd,
-                        ProfileImage = (string)null,
-                        UserCategory = "User",
-                        PreferAttraction = 1,
-                        PreferOther = 1,
-                        PreferRestaurant = 1,
-                        PreferShopping = 1
-                    };
+                string uid = fbAuth.Uid;
 
-                    CollectionReference usersCollection = _firestoreDb.Collection("users");
-                    DocumentReference newUserDocRef = usersCollection.Document(uid);
-                    await newUserDocRef.SetAsync(newUser);
+                var newUser = new
+                {
+                    registerModel.Email,
+                    registerModel.Username,
+                    registerModel.Name,
+                    DateOfBirth = registerModel.DateOfBirth.ToString("d/M/yyyy"),
+                    registerModel.Gender,
+                    registerModel.PhoneNumber,
+                    registerModel.HomeAdd,
+                    registerModel.UserCategory,
+                    registerModel.ImageUrl,
+                    registerModel.PreferAttraction,
+                    registerModel.PreferOther,
+                    registerModel.PreferRestaurant,
+                    registerModel.PreferShopping
 
-                    return RedirectToAction("Index", "Home");
-               
+            };
+
+                CollectionReference usersCollection = _firestoreDb.Collection("users");
+                DocumentReference newUserDocRef = usersCollection.Document(uid);
+                await newUserDocRef.SetAsync(newUser);
+                TempData["SuccessMessage"] = "Registration successful!";
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred during registration: {ex.Message}");
+
+                
+                return View(registerModel);
+            }
         }
+
+
+
 
         [HttpPost]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)

@@ -34,9 +34,10 @@ namespace webCore.Models
         public string Name { get; set; }
 
         [FirestoreProperty]
+        [Required(ErrorMessage = "Date of Birth is required")]
         [DataType(DataType.Date)]
-        
         public DateTime DateOfBirth { get; set; }
+
 
         [FirestoreProperty]
         [Required(ErrorMessage = "Gender is required")]
@@ -52,9 +53,26 @@ namespace webCore.Models
         public string HomeAdd { get; set; }
 
         [FirestoreProperty]
-        public string UserCategory { get; set; }
+        public string UserCategory { get; set; } = "User";
 
         [FirestoreProperty]
-        public string ImageUrl { get; set; }
+        public string ImageUrl { get; set; } = "";
+
+        [FirestoreProperty]
+        public int PreferAttraction { get; set; } = 1;
+
+        [FirestoreProperty]
+        public int PreferOther { get; set; } = 1;
+
+        [FirestoreProperty]
+        public int PreferRestaurant { get; set; } = 1;
+
+        [FirestoreProperty]
+        public int PreferShopping { get; set; } = 1;
+
+
+
+
+
     }
 }

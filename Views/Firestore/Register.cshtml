@@ -77,6 +77,7 @@
 
                 <input asp-for="DateOfBirth" class="form-control" placeholder="Date Of Birth" />
                 <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+
             </div>
             <div class="form-group mb-5">
 
@@ -119,45 +120,3 @@
 
 </body>
 </html>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
-    <script>
-       
-        function showRegistrationSuccessModal() {
-            $('#registrationSuccessModal').modal('show');
-        }
-
-        $('form').submit(function () {
-            showRegistrationSuccessModal();
-            $('#Password').val('');
-            $('#ConfirmPassword').val('');
-        });
-
-        $('#registrationSuccessModal').on('hidden.bs.modal', function () {
-            window.location.href = '@Url.Action("Index", "Home")';
-        });
-    </script>
-}
-
-<div class="modal fade" id="registrationSuccessModal" tabindex="-1" role="dialog" aria-labelledby="registrationSuccessModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="registrationSuccessModalLabel">Registration Successful!</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Registration successful! Please login to continue.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
