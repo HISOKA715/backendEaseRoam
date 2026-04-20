@@ -36,6 +36,10 @@ namespace webCore.Controllers {
         
         public FirestoreController(FirebaseApp firebaseApp)
         {
+            string filePath = "C:/Users/user/Documents/Visual Studio 2022/webCore/Controllers/fir-project-7ba4f-firebase-adminsdk-3pu6p-8d30027601.json";
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", filePath);
+
+          
             _firestoreDb = FirestoreDb.Create("fir-project-7ba4f");
             _auth = FirebaseAuth.GetAuth(firebaseApp);
         }
